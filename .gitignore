@@ -51,5 +51,7 @@ qtcreator-*
 .ccls
 .ccls-cache
 
+# vim
+.vim
 # Catkin custom files
 CATKIN_IGNORE
