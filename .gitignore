@@ -47,5 +47,9 @@ qtcreator-*
 # Emacs
 .#*
 
+# ccls
+.ccls
+.ccls-cache
+
 # Catkin custom files
 CATKIN_IGNORE
