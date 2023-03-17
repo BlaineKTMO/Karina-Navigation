@@ -1,13 +1,12 @@
 #include <WaypointServer.h>
 
-
 /**
 * Gets gps coordinates from text file.
 * 
 * @param file_name name of file to read from.
 */
 void WaypointServer::readGoals(std::string file_name) {
-    std::string path = ros::package::getPath("tca_turtlebot").append("/src/");
+    std::string path = ros::package::getPath("subsumption_model").append("/src/");
     std::ifstream file;
     std::string line;
 
@@ -21,6 +20,8 @@ void WaypointServer::readGoals(std::string file_name) {
     file.open(path, std::ios::in);
     if(!file.is_open())
         return;
+
+    ROS_INFO("Reading goals . . .");
 
     // Fill vector
     while(getline(file, line))
@@ -45,8 +46,15 @@ void WaypointServer::readGoals(std::string file_name) {
     goal_count = wpt_vec.size();
 
     file.close();
+
+    ROS_INFO("Goals read successfully!");
 }
 
+void WaypointServer::wayfind_callback(const std_msgs::BoolConstPtr& status) {
+    wayfind_complete = true;
+    wayfind_status = true;
+    ROS_INFO("Wayfind status callback triggered");
+}
 void WaypointServer::advance() {
     if ( counter >= goal_count )
         return;
@@ -91,16 +99,44 @@ void WaypointServer::start() {
                  goal.pose.position.x,
                  goal.pose.position.y);
 
-        goal_pub.publish(goal);
+        // goal_pub.publish(goal);
+        // 
+        // std_msgs::BoolConstPtr boolPtr = ros::topic::waitForMessage<std_msgs::Bool>("/wayfindStatus", n);
+        // if (boolPtr->data)
+        // {
+        //     ROS_INFO("Reached global goal!");
+        //     advance();
+        // }
+        // else
+        // {
+        //     ROS_INFO("Did not reach goal . . .");
+        //     recede();
+        // }
+
+        while(!wayfind_complete) {
+            goal_pub.publish(goal);
+            
+            rate.sleep();
+        }
+        ROS_INFO("Reached Goal");
+
+        // if (wayfind_status)
+
+        advance();
 
         rate.sleep();
     }
 }
 
-int main(int argc, char ** argv) {
+int main(int argc, char * argv[]) {
 
     ros::init(argc, argv, "WaypointServer");
     WaypointServer waypointServer;
 
-    return 1;
+    waypointServer.readGoals("goals_karina.txt");
+    waypointServer.start();
+    
+    ros::spin();
+    
+    return 0;
 }

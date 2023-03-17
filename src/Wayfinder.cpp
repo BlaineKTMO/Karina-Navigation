@@ -1,32 +1,74 @@
-#ifndef WAYFINDER_H
-#define WAYFINDER_H
-
 #include <ros/ros.h>
-#include <geometry_msgs/Point.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <nav_msgs/Odometry.h>
+#include <Wayfinder.h>
 
-const std::string LOCAL_GOAL_TOPIC = "/local_goal";
-const std::string GOAL_TOPIC = "/goal";
+void Wayfinder::vfhWptCallback(const geometry_msgs::PoseStampedConstPtr& msg) {
+    vfhWpt = *msg.get(); 
+}
 
-class Wayfinder {
-protected:
-    ros::NodeHandle n;
-    ros::Publisher local_goal;
-    ros::Subscriber goal_sub;
-    ros::Rate rate;
-private:
-    void goal_callback(geometry_msgs::PoseStampedConstPtr& msg);
-    void wayfind();
-    float distanceToWpt(const geometry_msgs::PoseStampedConstPtr& initial, const geometry_msgs::PoseStampedConstPtr& goal);
-    geometry_msgs::PointConstPtr getCurrentPos();
+void Wayfinder::lfWptCallback(const geometry_msgs::PoseStampedConstPtr& msg) {
+    lfWpt = *msg.get();
+}
+
+void Wayfinder::vfhStatusCallback(const std_msgs::BoolConstPtr& msg) {
+    vfhStatus = msg->data;
+}
+
+void Wayfinder::lfStatusCallback(const std_msgs::BoolConstPtr& msg) {
+    lfStatus = msg->data;
+} 
+
+void Wayfinder::targetVelocityCallback(const geometry_msgs::TwistConstPtr& msg) {
+    targetVelocity = *msg.get();
+} 
+
+void Wayfinder::wayfind() {
+    wpt.header.frame_id = "map";
+    wpt.pose.position = getCurrentPos();
+    wpt.pose.position.x += 5;
+
+    wpt.pose.orientation.x = 0;
+    wpt.pose.orientation.y = 0;
+    wpt.pose.orientation.z = 0;
+    wpt.pose.orientation.w = 1;
+   
+    if(vfhStatus) {
+        // wpt = vfhWpt;
+        wpt.pose.position.y += 5;
+    }
+    if(lfStatus) {
+        // wpt = lfWpt;
+        wpt.pose.position.y -= 5;
+    }
     
-public:
-    Wayfinder() :
-        local_goal(n.advertise<geometry_msgs::PoseStamped>(LOCAL_GOAL_TOPIC, 10)),
-        goal_sub(n.subscribe(GOAL_TOPIC, 10, &Wayfinder::goal_callback, this)),
-        rate(ros::Rate(1))
-    {}
-};
+    targetVelocityPub.publish(targetVelocity);
+    wptPub.publish(wpt);
+}
 
-#endif 
+/**
+* @brief Returns the current odom position
+*
+* @return geometry_msgs::Point
+*/
+geometry_msgs::Point Wayfinder::getCurrentPos()
+{
+    nav_msgs::OdometryConstPtr odom_ptr = ros::topic::waitForMessage<nav_msgs::Odometry>("/odom", n);
+    geometry_msgs::Point ret;
+    if (odom_ptr == NULL)
+        ROS_INFO("No odom data found.");
+    else
+        ret = odom_ptr->pose.pose.position; 
+
+    return ret;
+}
+
+int main (int argc, char *argv[])
+{
+    ros::init(argc, argv, "wayfinder");
+    
+    Wayfinder wayfinder;
+    while(ros::ok()) {
+        ros::spinOnce();
+        wayfinder.wayfind();
+    }
+    return 1;
+}

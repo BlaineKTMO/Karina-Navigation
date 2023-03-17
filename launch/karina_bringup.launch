@@ -1,0 +1,9 @@
+<?xml version="1.0"?> 
+
+<launch>
+
+    <include file="$(find karina_description)/launch/gazebo.launch" />    
+    <include file="$(find aasha)/launch/move_bas_only.launch" />
+    <include file="$(find dwa_planner)/launch/local_planner.launch" />
+
+</launch>

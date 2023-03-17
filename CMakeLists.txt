@@ -10,6 +10,12 @@ project(subsumption_model)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
+  geometry_msgs
+  nav_msgs
+  roslib
+  # messsage_generation
+  actionlib_msgs
+  actionlib
 )
 
 ## System dependencies are found with CMake's conventions
@@ -102,7 +108,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+ INCLUDE_DIRS include
 #  LIBRARIES subsumption_model
 #  CATKIN_DEPENDS roscpp std_msgs
 #  DEPENDS system_lib
@@ -115,7 +121,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -133,12 +139,25 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/subsumption_model_node.cpp)
+add_executable(${PROJECT_NAME}_wayfinder src/Wayfinder.cpp)
+target_link_libraries(${PROJECT_NAME}_wayfinder ${catkin_LIBRARIES})
+
+add_executable(${PROJECT_NAME}_tester src/tester.cpp)
+target_link_libraries(${PROJECT_NAME}_tester ${catkin_LIBRARIES})
+
+# add_executable(${PROJECT_NAME}_waypoint_server src/WaypointServer.cpp)
+# target_link_libraries(${PROJECT_NAME}_waypoint_server ${catkin_LIBRARIES})
+
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
 ## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
 # set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
+
+set_target_properties(${PROJECT_NAME}_wayfinder PROPERTIES OUTPUT_NAME wayfinder PREFIX "")
+set_target_properties(${PROJECT_NAME}_tester PROPERTIES OUTPUT_NAME tester PREFIX "")
+# set_target_properties(${PROJECT_NAME}_waypoint_server PROPERTIES OUTPUT_NAME waypoint_server PREFIX "")
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
