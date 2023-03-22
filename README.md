@@ -1,2 +1,2 @@
-# subsumption-model
-Utilizing dynamic window approach to create a subsumptive behavior model.
+# subsumption-wayfinder
+Autonomous robot movement utilizing a subsumptive approach for reactive path planning.
