@@ -7,6 +7,7 @@ int main (int argc, char *argv[])
 {
     ros::init(argc, argv, "tester");
     ros::NodeHandle n;
+    ros::Rate rate(10);
     
     geometry_msgs::Twist target_vel;
 
@@ -47,6 +48,7 @@ int main (int argc, char *argv[])
 
         }
 
+        rate.sleep();
         ros::spinOnce();
 
     }

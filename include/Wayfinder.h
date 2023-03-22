@@ -6,7 +6,9 @@
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Bool.h>
 #include <nav_msgs/Odometry.h>
+#include <nav_msgs/GetPlan.h>
 #include <vector>
+
 
 class Wayfinder {
 protected:
@@ -20,6 +22,7 @@ protected:
     ros::Subscriber lfStatusSub;
     ros::Subscriber targetVelocitySub;
     ros::Publisher targetVelocityPub;
+    ros::ServiceClient path_client;
 
     bool vfhStatus;
     bool lfStatus;
@@ -36,7 +39,8 @@ private:
     void vfhStatusCallback(const std_msgs::BoolConstPtr& msg);
     void lfStatusCallback(const std_msgs::BoolConstPtr& msg);
     void targetVelocityCallback(const geometry_msgs::TwistConstPtr& msg);
-    geometry_msgs::Point getCurrentPos();
+    geometry_msgs::PoseStamped getFromPath(geometry_msgs::PoseStamped goal);
+    geometry_msgs::PoseStamped getCurrentPos();
 
 public:
     Wayfinder() :
@@ -47,7 +51,8 @@ public:
         lfStatusSub(n.subscribe("/lf_status", 10, &Wayfinder::lfStatusCallback, this)),
         targetVelocitySub(n.subscribe("/target_vel", 10, &Wayfinder::targetVelocityCallback, this)),
         targetVelocityPub(n.advertise<geometry_msgs::Twist>("/target_velocity", 10)),
-        rate(ros::Rate(20)),
+        path_client(n.serviceClient<nav_msgs::GetPlan>("/move_base/make_plan")),
+        rate(ros::Rate(10)),
         vfhStatus(false),
         lfStatus(false)
     {};

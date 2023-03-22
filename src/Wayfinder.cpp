@@ -22,22 +22,25 @@ void Wayfinder::targetVelocityCallback(const geometry_msgs::TwistConstPtr& msg) 
 } 
 
 void Wayfinder::wayfind() {
-    wpt.header.frame_id = "map";
-    wpt.pose.position = getCurrentPos();
+    wpt = getCurrentPos();
     wpt.pose.position.x += 5;
 
-    wpt.pose.orientation.x = 0;
-    wpt.pose.orientation.y = 0;
-    wpt.pose.orientation.z = 0;
-    wpt.pose.orientation.w = 1;
-   
+    geometry_msgs::PoseStamped goal;
+    goal.header.frame_id = "map";
+    goal.pose.position.x = 10;
+    goal.pose.position.y = 10;
+    goal.pose.orientation.w = 1;
+
     if(vfhStatus) {
         // wpt = vfhWpt;
-        wpt.pose.position.y += 5;
+        // wpt.pose.position.y += 5;
+        wpt = getFromPath(goal);
     }
     if(lfStatus) {
         // wpt = lfWpt;
-        wpt.pose.position.y -= 5;
+        // wpt.pose.position.y -= 5;
+        goal.pose.position.x = -10;
+        wpt = getFromPath(goal);
     }
     
     targetVelocityPub.publish(targetVelocity);
@@ -49,17 +52,46 @@ void Wayfinder::wayfind() {
 *
 * @return geometry_msgs::Point
 */
-geometry_msgs::Point Wayfinder::getCurrentPos()
+geometry_msgs::PoseStamped Wayfinder::getCurrentPos()
 {
     nav_msgs::OdometryConstPtr odom_ptr = ros::topic::waitForMessage<nav_msgs::Odometry>("/odom", n);
-    geometry_msgs::Point ret;
+    geometry_msgs::PoseStamped ret;
     if (odom_ptr == NULL)
         ROS_INFO("No odom data found.");
     else
-        ret = odom_ptr->pose.pose.position; 
+        ret.pose = odom_ptr->pose.pose;
+
+    ret.header.frame_id = "map";
 
     return ret;
 }
+
+geometry_msgs::PoseStamped Wayfinder::getFromPath(geometry_msgs::PoseStamped goal) 
+{
+    nav_msgs::GetPlan path_service;
+    path_service.request.goal = goal;
+    path_service.request.start = getCurrentPos();
+    path_service.request.tolerance = 3;
+
+    geometry_msgs::PoseStamped ret;
+
+    if(path_client.call(path_service))
+    {
+        ROS_INFO("Path service called sucessfully!");
+        if (path_service.response.plan.poses.size() >= 31) {
+            ROS_INFO("Sending path at index 30.");
+            ret = path_service.response.plan.poses.at(30);
+        }
+        else {
+            ROS_INFO("Sending end of path.");
+            ret = *(path_service.response.plan.poses.cend() - 1);
+        }
+    }
+
+    return ret;
+
+}
+
 
 int main (int argc, char *argv[])
 {
