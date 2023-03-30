@@ -6,4 +6,5 @@
     <include file="$(find aasha)/launch/move_bas_only.launch" />
     <include file="$(find dwa_planner)/launch/local_planner.launch" />
 
+    <node name="wayfinder" pkg="subsumption_model" type="wayfinder"/>
 </launch>

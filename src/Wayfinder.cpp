@@ -45,6 +45,8 @@ void Wayfinder::wayfind() {
     
     targetVelocityPub.publish(targetVelocity);
     wptPub.publish(wpt);
+
+    rate.sleep();
 }
 
 /**
@@ -62,6 +64,10 @@ geometry_msgs::PoseStamped Wayfinder::getCurrentPos()
         ret.pose = odom_ptr->pose.pose;
 
     ret.header.frame_id = "map";
+    ret.pose.orientation.x = 0;
+    ret.pose.orientation.y = 0;
+    ret.pose.orientation.z = 0;
+    ret.pose.orientation.w = 1;
 
     return ret;
 }
@@ -78,9 +84,9 @@ geometry_msgs::PoseStamped Wayfinder::getFromPath(geometry_msgs::PoseStamped goa
     if(path_client.call(path_service))
     {
         ROS_INFO("Path service called sucessfully!");
-        if (path_service.response.plan.poses.size() >= 31) {
+        if (path_service.response.plan.poses.size() >= 51) {
             ROS_INFO("Sending path at index 30.");
-            ret = path_service.response.plan.poses.at(30);
+            ret = path_service.response.plan.poses.at(50);
         }
         else {
             ROS_INFO("Sending end of path.");
