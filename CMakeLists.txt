@@ -145,6 +145,9 @@ target_link_libraries(${PROJECT_NAME}_wayfinder ${catkin_LIBRARIES})
 add_executable(${PROJECT_NAME}_tester src/tester.cpp)
 target_link_libraries(${PROJECT_NAME}_tester ${catkin_LIBRARIES})
 
+add_executable(${PROJECT_NAME}_watcher src/Watcher.cpp)
+target_link_libraries(${PROJECT_NAME}_watcher ${catkin_LIBRARIES})
+
 # add_executable(${PROJECT_NAME}_waypoint_server src/WaypointServer.cpp)
 # target_link_libraries(${PROJECT_NAME}_waypoint_server ${catkin_LIBRARIES})
 
@@ -157,6 +160,7 @@ target_link_libraries(${PROJECT_NAME}_tester ${catkin_LIBRARIES})
 
 set_target_properties(${PROJECT_NAME}_wayfinder PROPERTIES OUTPUT_NAME wayfinder PREFIX "")
 set_target_properties(${PROJECT_NAME}_tester PROPERTIES OUTPUT_NAME tester PREFIX "")
+set_target_properties(${PROJECT_NAME}_watcher PROPERTIES OUTPUT_NAME watcher PREFIX "")
 # set_target_properties(${PROJECT_NAME}_waypoint_server PROPERTIES OUTPUT_NAME waypoint_server PREFIX "")
 
 ## Add cmake target dependencies of the executable

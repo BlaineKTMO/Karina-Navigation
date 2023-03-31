@@ -9,6 +9,8 @@
 #include <nav_msgs/GetPlan.h>
 #include <vector>
 
+const std::string STOP_TOPIC = "/stop";
+
 
 class Wayfinder {
 protected:
@@ -20,12 +22,14 @@ protected:
     ros::Subscriber lfWptSub;
     ros::Subscriber vfhStatusSub;
     ros::Subscriber lfStatusSub;
+    ros::Subscriber stopSub;
     ros::Subscriber targetVelocitySub;
     ros::Publisher targetVelocityPub;
     ros::ServiceClient path_client;
 
     bool vfhStatus;
     bool lfStatus;
+    bool stopStatus;
 
     geometry_msgs::PoseStamped vfhWpt;
     geometry_msgs::PoseStamped lfWpt;
@@ -38,6 +42,7 @@ private:
     void lfWptCallback(const geometry_msgs::PoseStampedConstPtr& msg);
     void vfhStatusCallback(const std_msgs::BoolConstPtr& msg);
     void lfStatusCallback(const std_msgs::BoolConstPtr& msg);
+    void stopSubCallback(const std_msgs::BoolConstPtr& msg);
     void targetVelocityCallback(const geometry_msgs::TwistConstPtr& msg);
     geometry_msgs::PoseStamped getFromPath(geometry_msgs::PoseStamped goal);
     geometry_msgs::PoseStamped getCurrentPos();
@@ -49,6 +54,7 @@ public:
         lfWptSub(n.subscribe("/lf_wpt", 10, &Wayfinder::lfWptCallback, this)),
         vfhStatusSub(n.subscribe("/vfh_status", 10, &Wayfinder::vfhStatusCallback, this)),
         lfStatusSub(n.subscribe("/lf_status", 10, &Wayfinder::lfStatusCallback, this)),
+        stopSub(n.subscribe(STOP_TOPIC, 10, &Wayfinder::stopSubCallback, this)),
         targetVelocitySub(n.subscribe("/target_vel", 10, &Wayfinder::targetVelocityCallback, this)),
         targetVelocityPub(n.advertise<geometry_msgs::Twist>("/target_velocity", 10)),
         path_client(n.serviceClient<nav_msgs::GetPlan>("/move_base/make_plan")),

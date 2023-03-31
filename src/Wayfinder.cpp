@@ -15,11 +15,15 @@ void Wayfinder::vfhStatusCallback(const std_msgs::BoolConstPtr& msg) {
 
 void Wayfinder::lfStatusCallback(const std_msgs::BoolConstPtr& msg) {
     lfStatus = msg->data;
+}
+
+void Wayfinder::stopSubCallback(const std_msgs::BoolConstPtr& msg) {
+    
 } 
 
 void Wayfinder::targetVelocityCallback(const geometry_msgs::TwistConstPtr& msg) {
     targetVelocity = *msg.get();
-} 
+}
 
 void Wayfinder::wayfind() {
     wpt = getCurrentPos();
@@ -41,6 +45,9 @@ void Wayfinder::wayfind() {
         // wpt.pose.position.y -= 5;
         goal.pose.position.x = -10;
         wpt = getFromPath(goal);
+    }
+    if(stopSub) {
+        return;
     }
     
     targetVelocityPub.publish(targetVelocity);
@@ -95,7 +102,6 @@ geometry_msgs::PoseStamped Wayfinder::getFromPath(geometry_msgs::PoseStamped goa
     }
 
     return ret;
-
 }
 
 
