@@ -14,7 +14,7 @@
 const std::string LIDAR_TOPIC = "/scan";
 const std::string STOP_TOPIC = "/stop";
 
-static const float MIN_DISTANCE = 0.05;
+static const float MIN_DISTANCE = 1;
 
 class Watcher {
 private:

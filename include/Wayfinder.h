@@ -60,7 +60,8 @@ public:
         path_client(n.serviceClient<nav_msgs::GetPlan>("/move_base/make_plan")),
         rate(ros::Rate(10)),
         vfhStatus(false),
-        lfStatus(false)
+        lfStatus(false),
+        stopStatus(false)
     {};
 
     void wayfind();

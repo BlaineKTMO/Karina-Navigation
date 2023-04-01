@@ -18,7 +18,7 @@ void Wayfinder::lfStatusCallback(const std_msgs::BoolConstPtr& msg) {
 }
 
 void Wayfinder::stopSubCallback(const std_msgs::BoolConstPtr& msg) {
-    
+    stopStatus = true; 
 } 
 
 void Wayfinder::targetVelocityCallback(const geometry_msgs::TwistConstPtr& msg) {
@@ -27,7 +27,7 @@ void Wayfinder::targetVelocityCallback(const geometry_msgs::TwistConstPtr& msg) 
 
 void Wayfinder::wayfind() {
     wpt = getCurrentPos();
-    wpt.pose.position.x += 5;
+    wpt.pose.position.x += 1.5;
 
     geometry_msgs::PoseStamped goal;
     goal.header.frame_id = "map";
@@ -46,7 +46,7 @@ void Wayfinder::wayfind() {
         goal.pose.position.x = -10;
         wpt = getFromPath(goal);
     }
-    if(stopSub) {
+    if(stopStatus) {
         return;
     }
     
@@ -91,9 +91,9 @@ geometry_msgs::PoseStamped Wayfinder::getFromPath(geometry_msgs::PoseStamped goa
     if(path_client.call(path_service))
     {
         ROS_INFO("Path service called sucessfully!");
-        if (path_service.response.plan.poses.size() >= 51) {
+        if (path_service.response.plan.poses.size() >= 31) {
             ROS_INFO("Sending path at index 30.");
-            ret = path_service.response.plan.poses.at(50);
+            ret = path_service.response.plan.poses.at(30);
         }
         else {
             ROS_INFO("Sending end of path.");

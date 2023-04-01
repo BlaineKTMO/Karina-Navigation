@@ -10,6 +10,7 @@
 
 void Watcher::checkLaserCollision(const sensor_msgs::LaserScanConstPtr& msg) {
     for(auto laser : msg->ranges) {
+        ROS_WARN("%f", laser);
         if (laser < MIN_DISTANCE)
             stop = true;
             break;
