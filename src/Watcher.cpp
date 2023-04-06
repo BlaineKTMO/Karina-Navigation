@@ -18,13 +18,12 @@ void Watcher::checkLaserCollision(const sensor_msgs::LaserScanConstPtr& msg) {
 }
 
 void Watcher::monitor() {
-    while(ros::ok()) {
-        if (stop){
-            std_msgs::Bool msg;
-            msg.data = true;
-            stopPub.publish(msg);
-        }
+    if (stop){
+        std_msgs::Bool msg;
+        msg.data = true;
+        stopPub.publish(msg);
     }
+    rate.sleep();
 }
 
 int main (int argc, char *argv[])
@@ -32,7 +31,10 @@ int main (int argc, char *argv[])
     ros::init(argc, argv, "Watcher");
 
     Watcher watcher;
+    while (ros::ok()) {
+        watcher.monitor();
+        ros::spinOnce();
+    }
 
-    ros::spin();
     return 0;
 }
