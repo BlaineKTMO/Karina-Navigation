@@ -7,6 +7,8 @@
 #include <std_msgs/Bool.h>
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/GetPlan.h>
+#include <tf2_ros/transform_listener.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <vector>
 
 const std::string STOP_TOPIC = "/stop";
@@ -26,6 +28,8 @@ protected:
     ros::Subscriber targetVelocitySub;
     ros::Publisher targetVelocityPub;
     ros::ServiceClient path_client;
+    tf2_ros::Buffer tfBuffer;
+    tf2_ros::TransformListener tfListener;
 
     bool vfhStatus;
     bool lfStatus;
@@ -61,8 +65,9 @@ public:
         rate(ros::Rate(10)),
         vfhStatus(false),
         lfStatus(false),
-        stopStatus(false)
-    {};
+        stopStatus(false),
+        tfListener(tfBuffer)
+         {};
 
     void wayfind();
 };

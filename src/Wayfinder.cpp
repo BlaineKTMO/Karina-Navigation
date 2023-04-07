@@ -26,8 +26,13 @@ void Wayfinder::targetVelocityCallback(const geometry_msgs::TwistConstPtr& msg) 
 }
 
 void Wayfinder::wayfind() {
-    wpt = getCurrentPos();
-    wpt.pose.position.x += 1.5;
+    // wpt = getCurrentPos();
+    wpt.header.frame_id = "base_link";
+    wpt.pose.position.x = 1.5;
+    wpt.pose.orientation.w = 1;
+
+    tfBuffer.transform<geometry_msgs::PoseStamped>(wpt, "map", ros::Duration(1));
+    
 
     geometry_msgs::PoseStamped goal;
     goal.header.frame_id = "map";

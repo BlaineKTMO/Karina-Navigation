@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   nav_msgs
   roslib
+  tf2_ros
   # messsage_generation
   actionlib_msgs
   actionlib
