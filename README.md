@@ -25,7 +25,7 @@ This node collects waypoints from Vector Field Histogram and Lane Following to e
 
 ###  Euclidean Distance Transform
 | Subscribed Topics | |Published Topics  |
-|--| |--|
+|--|--|--|
 | Costmap |  | Path plan |
 
 ## Controllers
