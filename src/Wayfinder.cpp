@@ -109,15 +109,15 @@ void Wayfinder::wayfind() {
     goal.pose.orientation.w = 1;
 
     if(vfhStatus) {
-        // wpt = vfhWpt;
+        wpt = vfhWpt;
         // wpt.pose.position.y += 5;
-        wpt = getFromPath(goal);
+        // wpt = getFromPath(goal);
     }
     if(lfStatus) {
-        // wpt = lfWpt;
+        wpt = lfWpt;
         // wpt.pose.position.y -= 5;
-        goal.pose.position.x = -10;
-        wpt = getFromPath(goal);
+        // goal.pose.position.x = -10;
+        // wpt = getFromPath(goal);
     }
    
     // Publish target velocity and wpt for dwa controller
