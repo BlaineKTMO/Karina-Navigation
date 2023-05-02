@@ -15,6 +15,7 @@ void Wayfinder::vfhWptCallback(const geometry_msgs::PoseStampedConstPtr& msg) {
 
 void Wayfinder::lfWptCallback(const geometry_msgs::PoseStampedConstPtr& msg) {
     lfWpt = *msg.get();
+    addToPath(lfWpt);
 }
 
 void Wayfinder::vfhStatusCallback(const std_msgs::BoolConstPtr& msg) {
@@ -63,9 +64,14 @@ void Wayfinder::navigate() {
     // Stop the robot
     if(stopStatus) {
         // stopStatus = false;
+
+        // Probably better to publish here
         targetVelocity.linear.x = 0; // Set v to zero, wayfind loop will publish
     }
-
+    
+    if(collectedPath.size() > 40) {
+        // Publish path
+    }
     wayfind();
 }
 
@@ -118,6 +124,27 @@ void Wayfinder::wayfind() {
     targetVelocityPub.publish(targetVelocity);
     wptPub.publish(wpt);
     // ROS_WARN("%.3f, %.3f", wpt.pose.position.x, wpt.pose.position.y);
+}
+
+void Wayfinder::addToPath(geometry_msgs::PoseStamped pose) {
+    if (getDistance(pose.pose, collectedPath.back().pose) > 1) {
+        collectedPath.clear();
+    }
+
+    collectedPath.push_back(pose);
+    if (collectedPath.size() > 50) {
+        std::reverse(std::begin(collectedPath), std::end(collectedPath));
+        collectedPath.pop_back();
+        std::reverse(std::begin(collectedPath), std::end(collectedPath));
+    }
+
+    for (auto iter : collectedPath) {
+        path.poses.push_back(iter);
+    }
+}
+
+float Wayfinder::getDistance(geometry_msgs::Pose poseA, geometry_msgs::Pose poseB) {
+    return sqrt(pow(poseA.position.x - poseB.position.x, 2) + pow(poseA.position.y - poseB.position.y, 2));
 }
 
 /**

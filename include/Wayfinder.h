@@ -66,23 +66,40 @@ protected:
     geometry_msgs::PoseStamped wpt;
     geometry_msgs::Twist targetVelocity;
 
+    std::vector<geometry_msgs::PoseStamped> collectedPath;
+    nav_msgs::Path path;
+
 private:
+    // Navigation functions
     void reverse();
     void wayfind();
 
+    // Agent subscribers
     void reverseCallback(const std_msgs::BoolConstPtr& msg);
+    void stopSubCallback(const std_msgs::BoolConstPtr& msg);
+    void targetVelocityCallback(const geometry_msgs::TwistConstPtr& msg);
+
+    // Waypoint subscribers
     void vfhWptCallback(const geometry_msgs::PoseStampedConstPtr& msg);
     void lfWptCallback(const geometry_msgs::PoseStampedConstPtr& msg);
     void vfhStatusCallback(const std_msgs::BoolConstPtr& msg);
     void lfStatusCallback(const std_msgs::BoolConstPtr& msg);
-    void stopSubCallback(const std_msgs::BoolConstPtr& msg);
-    void targetVelocityCallback(const geometry_msgs::TwistConstPtr& msg);
+
+
+    // Helper Functions
     geometry_msgs::PoseStamped getFromPath(geometry_msgs::PoseStamped goal);
     geometry_msgs::PoseStamped getCurrentPos();
+    void addToPath(geometry_msgs::PoseStamped goal);
+    float getDistance(geometry_msgs::Pose poseA, geometry_msgs::Pose poseB);
 
 public:
     Wayfinder() :
+        // Initialize publishers
+        targetVelocityPub(n.advertise<geometry_msgs::Twist>("/target_velocity", 10)),
         wptPub(n.advertise<geometry_msgs::PoseStamped>("/local_goal", 10)),
+        velPub(n.advertise<geometry_msgs::Twist>("/move_base/cmd_vel", 10)),
+
+        // Initialize subscribers
         reverseSub(n.subscribe("/reverse", 10, &Wayfinder::reverseCallback, this)),
         vfhWptSub(n.subscribe("/vfh_wpt", 10, &Wayfinder::vfhWptCallback, this)),
         lfWptSub(n.subscribe("/lf_wpt", 10, &Wayfinder::lfWptCallback, this)),
@@ -90,15 +107,22 @@ public:
         lfStatusSub(n.subscribe("/lf_status", 10, &Wayfinder::lfStatusCallback, this)),
         stopSub(n.subscribe(STOP_TOPIC, 10, &Wayfinder::stopSubCallback, this)),
         targetVelocitySub(n.subscribe("/target_vel", 10, &Wayfinder::targetVelocityCallback, this)),
-        targetVelocityPub(n.advertise<geometry_msgs::Twist>("/target_velocity", 10)),
-        velPub(n.advertise<geometry_msgs::Twist>("/move_base/cmd_vel", 10)),
+
+        // Initialize move base path service
         path_client(n.serviceClient<nav_msgs::GetPlan>("/move_base/make_plan")),
+
+        // Set loop rate
         rate(ros::Rate(10)),
+        
+        // Set initial status values
         reverseStatus(false),
         vfhStatus(false),
         lfStatus(false),
         stopStatus(false),
-        tfListener(tfBuffer)
+
+        // Initialize transform listener
+        tfListener(tfBuffer),
+        collectedPath({})
          {};
 
     void navigate();
