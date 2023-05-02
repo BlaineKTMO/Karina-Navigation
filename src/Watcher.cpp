@@ -11,6 +11,7 @@
 void Watcher::checkLaserCollision(const sensor_msgs::LaserScanConstPtr& msg) {
     for(int i = 80; i < 100; i++) {
         // ROS_WARN("%f", msg->ranges[i]);
+        // If obstacle directly in front of robot
         if (msg->ranges[i] < MIN_DISTANCE) {
             reversePub.publish(trueStdMsg);
             break;
@@ -34,6 +35,7 @@ void Watcher::monitor() {
     //     stop = false;
     // }
 
+    // Set target velocity for wayfinder
     targetVel.linear.x = 0.4;
     targetVelPub.publish(targetVel);
 
@@ -44,6 +46,7 @@ int main (int argc, char *argv[])
 {
     ros::init(argc, argv, "Watcher");
 
+    // Launch watcher and start monitoring loop
     Watcher watcher;
     while (ros::ok()) {
         watcher.monitor();

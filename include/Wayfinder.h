@@ -1,3 +1,24 @@
+/**
+* Author: Blaine Oania
+* File: Wayfinder.h
+* Date: 3/31/2023
+* Description:
+*   Subsumptive navigation planner that selects an incoming waypoint from input
+*   topics and publishes chosen point to be read by a local controller. If no
+*   waypoint is available, a waypoint in front of the robot is chosen.
+*
+* Input Topics
+*   vfhWpt: Vector Field Histogram waypoint
+*   lfWpt: Lane Follow waypoint
+*   targetVel: Target Velocity 
+*   stop: Stop signal
+*   reverse: Reverse signal
+*
+* Output Topics
+*   localGoal: Chosen local waypoint
+*   targetVelocity: Chosen target velocity
+*/
+
 #ifndef WAYFINDER_H
 #define WAYFINDER_H
 

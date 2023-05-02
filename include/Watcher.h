@@ -1,9 +1,10 @@
 /**
 * Author: Blaine Oania
-* File: Watcher
+* File: Watcher.h
 * Date: 3/31/2023
 * Description:
-*   Watcher node to monitor robot position and sensors.
+*   Watchdog that monitors robot sensor and costmap topics to prevent collisions
+*   and trigger recovery behaviors.
 */
 
 #include <ros/ros.h>
