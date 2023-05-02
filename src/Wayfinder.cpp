@@ -42,10 +42,16 @@ void Wayfinder::reverse() {
  * @brief Navigation function which checks robot status and acts accordingly. 
  */
 void Wayfinder::navigate() {
+    rate.sleep();
     if(reverseStatus) {
         ROS_WARN("Reversing");
         reverse();
         reverseStatus = false;
+        return;
+    }
+    if(stopStatus) {
+        stopStatus = false;
+        targetVelocity.linear.x = 0;
         return;
     }
 
@@ -58,7 +64,8 @@ void Wayfinder::navigate() {
  */
 void Wayfinder::wayfind() {
     // wpt = getCurrentPos();
-    
+   
+    // Set default move forward command
     geometry_msgs::PoseStamped forward;
     forward.header.frame_id = "base_link";
     forward.pose.position.x = 1.5;
@@ -76,7 +83,6 @@ void Wayfinder::wayfind() {
 
     tfBuffer.transform<geometry_msgs::PoseStamped>(forward, "map", ros::Duration(2));
     wpt = forward;
-    
 
     geometry_msgs::PoseStamped goal;
     goal.header.frame_id = "map";
@@ -95,16 +101,10 @@ void Wayfinder::wayfind() {
         goal.pose.position.x = -10;
         wpt = getFromPath(goal);
     }
-    if(stopStatus) {
-        stopStatus = false;
-        targetVelocity.linear.x = 0;
-    }
     
     targetVelocityPub.publish(targetVelocity);
     wptPub.publish(wpt);
-    ROS_WARN("%.3f, %.3f", wpt.pose.position.x, wpt.pose.position.y);
-
-    rate.sleep();
+    // ROS_WARN("%.3f, %.3f", wpt.pose.position.x, wpt.pose.position.y);
 }
 
 /**

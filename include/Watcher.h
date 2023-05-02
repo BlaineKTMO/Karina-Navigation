@@ -41,8 +41,9 @@ private:
     ros::Publisher stopPub;
     ros::Publisher reversePub;
     
-    bool stop;
     geometry_msgs::Twist targetVel;
+    std_msgs::Bool falseStdMsg;
+    std_msgs::Bool trueStdMsg;
 
     void checkLaserCollision(const sensor_msgs::LaserScanConstPtr& msg);
     // void checkCostmapCollision();
@@ -60,7 +61,6 @@ public:
         targetVelPub(n.advertise<geometry_msgs::Twist>("/target_vel", 10)),
         stopPub(n.advertise<std_msgs::Bool>(STOP_TOPIC, 10)),
         reversePub(n.advertise<std_msgs::Bool>(REVERSE_TOPIC, 10)),
-        stop(false),
         rate(ros::Rate(5))
     {}
 

@@ -11,9 +11,10 @@
 void Watcher::checkLaserCollision(const sensor_msgs::LaserScanConstPtr& msg) {
     for(int i = 80; i < 100; i++) {
         // ROS_WARN("%f", msg->ranges[i]);
-        if (msg->ranges[i] < MIN_DISTANCE)
-            stop = true;
+        if (msg->ranges[i] < MIN_DISTANCE) {
+            stopPub.publish(trueStdMsg);
             break;
+        }
     }
 }
 
@@ -23,17 +24,17 @@ void Watcher::checkLaserCollision(const sensor_msgs::LaserScanConstPtr& msg) {
  */
 void Watcher::monitor() {
     // If robot blocked
-    if (stop){
-        ROS_INFO("Robot stopped!");
-        std_msgs::Bool msg;
-        msg.data = true;
-        stopPub.publish(msg);
-        reversePub.publish(msg);
+    // if (stop){
+    //     ROS_INFO("Robot stopped!");
+    //     std_msgs::Bool msg;
+    //     msg.data = true;
+    //     stopPub.publish(msg);
+    //     reversePub.publish(msg);
+    //
+    //     stop = false;
+    // }
 
-        stop = false;
-    }
-
-    targetVel.linear.x = 0.2;
+    targetVel.linear.x = 0.4;
     targetVelPub.publish(targetVel);
 
     rate.sleep();
