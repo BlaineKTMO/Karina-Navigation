@@ -11,9 +11,9 @@ The velocity controller is a single stage process which obtains information abou
 ## Wayfinder Nodes
 ### Subsumptive
 A subsumptive approach to wayfinding. This node listens to Vector Field Histogram and Lane Following topics, picking the higher priority (in this case, lane follow) waypoint. In the event that no waypoint is chosen, the robot simply moves forward.
-| Subscribed Topics |Published Topics  |
-|--|--|
-|VFH Wpt / Status| Local Goal |
+| Subscribed Topics  | |Published Topics  |
+|--|--|--|
+|VFH Wpt / Status|  | Local Goal |
 |LF Wpt / Status|
 
 **Subscribed Topics**
