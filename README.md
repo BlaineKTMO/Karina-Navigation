@@ -78,5 +78,11 @@ graph LR
 A(VFH) -- Pose Stamped --> B((Wayfinder))
 C(LF) -- Pose Stamped --> B
 D(Target Velocity) -- Twist --> B
-B -- Pose Stamped --> E(Local Goal)
-B -- Path --> F(f)
+B -- Pose Stamped --> E(LocalGoal)
+B -- Path --> F(CollectedPath)
+G((Agent)) -- Twist --> D
+G --> H(Recovery Topics)
+H --> B
+F --> I((PID))
+E --> J((DWA))
+```
