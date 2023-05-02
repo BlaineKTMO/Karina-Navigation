@@ -1,5 +1,4 @@
 # Karina Navigation
- 
 This package was developed to provide autonomous navigation capabilities for the WRC Karina robot. Since previous renditions proved too inflexible, a new approach was taken to deliver a more reactive and intelligent navigation stack.
 
 ## General Architecture
@@ -62,12 +61,7 @@ Bob-->Alice: Checking with John...
 Alice->John: Yes... John, how are you?
 ```
 
- 
-
-And this will produce a flow chart:
-
- 
-
+# Information Flow Chart
 ```mermaid
 graph LR
 A((Sensors)) --> B(Wayfinder)
@@ -77,3 +71,12 @@ D --> E{Robot}
 C --> E
 E --> A
 ```
+
+# Topic Diagram
+```mermaid
+graph LR
+A(VFH) -- Pose Stamped --> B((Wayfinder))
+C(LF) -- Pose Stamped --> B
+D(Target Velocity) -- Twist --> B
+B -- Pose Stamped --> E(Local Goal)
+B -- Path --> F(f)
