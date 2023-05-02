@@ -16,24 +16,18 @@ A subsumptive approach to wayfinding. This node listens to Vector Field Histogra
 |VFH Wpt / Status|  | Local Goal |
 |LF Wpt / Status|
 
-**Subscribed Topics**
-- VFH Waypoint and Status
-- Lane Follow Waypoint and Status
-
-**Published Topics**
-- Local Goal
 ### Path Collector
-This node collects waypoints from Vector Field Histogram and Lane Following to establish a path which is post-processed then 
-**Subscribed Topics**
-- VFH Waypoint and Status
-- Lane Follow Waypoint and Status
+This node collects waypoints from Vector Field Histogram and Lane Following to establish a path which is post-processed then
+| Subscribed Topics  | |Published Topics  |
+|--|--|--|
+|VFH Wpt / Status|  | Target Path |
+|LF Wpt / Status|
 
-**Published Topics**
-- Target Path
 ###  Euclidean Distance Transform
-**Subscribed Topics**
+| Subscribed Topics | |Published Topics  |
+|--| |--|
+| Costmap |  | Path plan |
 
-**Published Topics**
 ## Controllers
 ### Proportional-Integral-Derivative (PID)
 ### Dynamic Window Approach (DWA)
