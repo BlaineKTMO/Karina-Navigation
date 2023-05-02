@@ -6,7 +6,7 @@ The Karina Navigation Stack was designed for modularity and simplicity with a bo
 
 The trajectory controller is a 2 stage process which selects local waypoints to create a plan that it delivers to the robot. In the first phase, generated waypoints from VFH and Lane Follow are processed and are used to construct the plan (In this case - a single local waypoint). This plan is then sent to the next phase which features a controller that sends velocity commands to the drive motors.
 
-The velocity controller is a single stage process which obtains information about Karina's local environment from the costmap and sensor readings. These readings are checked to ensure the robot
+The velocity controller is a single stage process which obtains information about Karina's local environment from the costmap and sensor readings. These readings are checked to ensure no imminent collisions.
 
 ## Wayfinder Nodes
 ### Subsumptive
