@@ -5,6 +5,15 @@
 * Description:
 *   Watchdog that monitors robot sensor and costmap topics to prevent collisions
 *   and trigger recovery behaviors.
+*
+* Inputs:
+*   lidar: lidar sensor topic
+*   costmap: costmap topic
+*
+* Outputs:
+*   targetVel: Chosen target velocity
+*   stop: Stop signal
+*   reverse: Reverse signal
 */
 
 #include <ros/ros.h>

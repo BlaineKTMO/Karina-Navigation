@@ -1,3 +1,11 @@
+/**
+* Author: Blaine Oania
+* File: Wayfinder.cpp
+* Date: 3/31/2023
+* Description:
+*   Subsumptive local navigator node.
+*/
+
 #include <ros/ros.h>
 #include <Wayfinder.h>
 
