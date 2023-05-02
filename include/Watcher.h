@@ -13,8 +13,9 @@
 
 const std::string LIDAR_TOPIC = "/scan";
 const std::string STOP_TOPIC = "/stop";
+const std::string REVERSE_TOPIC = "/reverse";
 
-static const float MIN_DISTANCE = 1;
+static const float MIN_DISTANCE = 2;
 
 class Watcher {
 private:
@@ -36,16 +37,17 @@ private:
     
     // ros::Publisher vfhStatPub;
     // ros::Publisher lfStatPub;
-    // ros::Publisher targetVelPub;
+    ros::Publisher targetVelPub;
     ros::Publisher stopPub;
+    ros::Publisher reversePub;
     
     bool stop;
+    geometry_msgs::Twist targetVel;
 
     void checkLaserCollision(const sensor_msgs::LaserScanConstPtr& msg);
     // void checkCostmapCollision();
 
     ros::Rate rate;
-
 
 
 public:
@@ -55,8 +57,9 @@ public:
 
         // vfhStatPub(n.advertise<std_msgs::Bool>("/vfh_status", 10)),
         // lfStatPub(n.advertise<std_msgs::Bool>("/lf_status", 10)),
-        // targetVelPub(n.advertise<geometry_msgs::Twist>("/target_vel", 10)),
+        targetVelPub(n.advertise<geometry_msgs::Twist>("/target_vel", 10)),
         stopPub(n.advertise<std_msgs::Bool>(STOP_TOPIC, 10)),
+        reversePub(n.advertise<std_msgs::Bool>(REVERSE_TOPIC, 10)),
         stop(false),
         rate(ros::Rate(5))
     {}

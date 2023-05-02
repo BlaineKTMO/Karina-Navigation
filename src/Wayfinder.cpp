@@ -25,13 +25,57 @@ void Wayfinder::targetVelocityCallback(const geometry_msgs::TwistConstPtr& msg) 
     targetVelocity = *msg.get();
 }
 
+void Wayfinder::reverseCallback(const std_msgs::BoolConstPtr& msg) {
+    reverseStatus = true;
+}
+
+/**
+ * @brief Reverse recovery action
+ */
+void Wayfinder::reverse() {
+    geometry_msgs::Twist msg;
+    msg.linear.x = -2;
+    velPub.publish(msg);
+}
+
+/**
+ * @brief Navigation function which checks robot status and acts accordingly. 
+ */
+void Wayfinder::navigate() {
+    if(reverseStatus) {
+        ROS_WARN("Reversing");
+        reverse();
+        reverseStatus = false;
+        return;
+    }
+
+    wayfind();
+}
+
+/**
+ * @brief Main wayfind loop. Checks waypoint status, and if available, sets waypoint
+ * to new read waypoint.
+ */
 void Wayfinder::wayfind() {
     // wpt = getCurrentPos();
-    wpt.header.frame_id = "base_link";
-    wpt.pose.position.x = 1.5;
-    wpt.pose.orientation.w = 1;
+    
+    geometry_msgs::PoseStamped forward;
+    forward.header.frame_id = "base_link";
+    forward.pose.position.x = 1.5;
+    forward.pose.orientation.w = 1;
 
-    tfBuffer.transform<geometry_msgs::PoseStamped>(wpt, "map", ros::Duration(1));
+
+    // wpt.header.frame_id = "base_link";
+    // wpt.pose.position.x = 1.5;
+    // wpt.pose.position.y = 0;
+    // wpt.pose.position.z = 0;
+    // wpt.pose.orientation.x = 0;
+    // wpt.pose.orientation.y = 0;
+    // wpt.pose.orientation.z = 0;
+    // wpt.pose.orientation.w = 1;
+
+    tfBuffer.transform<geometry_msgs::PoseStamped>(forward, "map", ros::Duration(2));
+    wpt = forward;
     
 
     geometry_msgs::PoseStamped goal;
@@ -52,11 +96,13 @@ void Wayfinder::wayfind() {
         wpt = getFromPath(goal);
     }
     if(stopStatus) {
-        return;
+        stopStatus = false;
+        targetVelocity.linear.x = 0;
     }
     
     targetVelocityPub.publish(targetVelocity);
     wptPub.publish(wpt);
+    ROS_WARN("%.3f, %.3f", wpt.pose.position.x, wpt.pose.position.y);
 
     rate.sleep();
 }
@@ -84,6 +130,12 @@ geometry_msgs::PoseStamped Wayfinder::getCurrentPos()
     return ret;
 }
 
+/**
+ * @brief Retrieve a point from the move_base path service
+ *
+ * @param goal Goal position
+ * @return Path at index 30
+ */
 geometry_msgs::PoseStamped Wayfinder::getFromPath(geometry_msgs::PoseStamped goal) 
 {
     nav_msgs::GetPlan path_service;
@@ -99,7 +151,7 @@ geometry_msgs::PoseStamped Wayfinder::getFromPath(geometry_msgs::PoseStamped goa
         if (path_service.response.plan.poses.size() >= 31) {
             ROS_INFO("Sending path at index 30.");
             ret = path_service.response.plan.poses.at(30);
-        }
+       }
         else {
             ROS_INFO("Sending end of path.");
             ret = *(path_service.response.plan.poses.cend() - 1);
@@ -117,7 +169,7 @@ int main (int argc, char *argv[])
     Wayfinder wayfinder;
     while(ros::ok()) {
         ros::spinOnce();
-        wayfinder.wayfind();
+        wayfinder.navigate();
     }
     return 1;
 }

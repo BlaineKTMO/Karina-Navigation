@@ -13,24 +13,28 @@
 
 const std::string STOP_TOPIC = "/stop";
 
-
 class Wayfinder {
 protected:
     ros::NodeHandle n;
     ros::Rate rate;
 
     ros::Publisher wptPub;
+    ros::Publisher targetVelocityPub;
+    ros::Publisher velPub; 
+
+    ros::Subscriber reverseSub;
     ros::Subscriber vfhWptSub;
     ros::Subscriber lfWptSub;
     ros::Subscriber vfhStatusSub;
     ros::Subscriber lfStatusSub;
     ros::Subscriber stopSub;
     ros::Subscriber targetVelocitySub;
-    ros::Publisher targetVelocityPub;
+
     ros::ServiceClient path_client;
     tf2_ros::Buffer tfBuffer;
     tf2_ros::TransformListener tfListener;
 
+    bool reverseStatus;
     bool vfhStatus;
     bool lfStatus;
     bool stopStatus;
@@ -42,6 +46,10 @@ protected:
     geometry_msgs::Twist targetVelocity;
 
 private:
+    void reverse();
+    void wayfind();
+
+    void reverseCallback(const std_msgs::BoolConstPtr& msg);
     void vfhWptCallback(const geometry_msgs::PoseStampedConstPtr& msg);
     void lfWptCallback(const geometry_msgs::PoseStampedConstPtr& msg);
     void vfhStatusCallback(const std_msgs::BoolConstPtr& msg);
@@ -54,6 +62,7 @@ private:
 public:
     Wayfinder() :
         wptPub(n.advertise<geometry_msgs::PoseStamped>("/local_goal", 10)),
+        reverseSub(n.subscribe("/reverse", 10, &Wayfinder::reverseCallback, this)),
         vfhWptSub(n.subscribe("/vfh_wpt", 10, &Wayfinder::vfhWptCallback, this)),
         lfWptSub(n.subscribe("/lf_wpt", 10, &Wayfinder::lfWptCallback, this)),
         vfhStatusSub(n.subscribe("/vfh_status", 10, &Wayfinder::vfhStatusCallback, this)),
@@ -61,15 +70,18 @@ public:
         stopSub(n.subscribe(STOP_TOPIC, 10, &Wayfinder::stopSubCallback, this)),
         targetVelocitySub(n.subscribe("/target_vel", 10, &Wayfinder::targetVelocityCallback, this)),
         targetVelocityPub(n.advertise<geometry_msgs::Twist>("/target_velocity", 10)),
+        velPub(n.advertise<geometry_msgs::Twist>("/move_base/cmd_vel", 10)),
         path_client(n.serviceClient<nav_msgs::GetPlan>("/move_base/make_plan")),
         rate(ros::Rate(10)),
+        reverseStatus(false),
         vfhStatus(false),
         lfStatus(false),
         stopStatus(false),
         tfListener(tfBuffer)
          {};
 
-    void wayfind();
+    void navigate();
+
 };
 
 #endif
