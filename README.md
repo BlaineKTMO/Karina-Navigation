@@ -1,7 +1,10 @@
+
 # Karina Navigation
+
 This package was developed to provide autonomous navigation capabilities for the WRC Karina robot. Since previous renditions proved too inflexible, a new approach was taken to deliver a more reactive and intelligent navigation stack.
 
 ## General Architecture
+
 The Karina Navigation Stack was designed for modularity and simplicity with a bottom-up approach. Navigation is broken into two tasks - trajectory and velocity control. Trajectory control is accomplished by a combination of local waypoint selection and a Dynamic Window Approach (DWA) controller. Velocity control is achieved by an agent, which monitors costmap and sensor data to adjust velocity and provide recovery behavior.
 
 The trajectory controller is a 2 stage process which selects local waypoints to create a plan that it delivers to the robot. In the first phase, generated waypoints from VFH and Lane Follow are processed and are used to construct the plan (In this case - a single local waypoint). This plan is then sent to the next phase which features a controller that sends velocity commands to the drive motors.
@@ -9,50 +12,66 @@ The trajectory controller is a 2 stage process which selects local waypoints to 
 The velocity controller is a single stage process which obtains information about Karina's local environment from the costmap and sensor readings. These readings are checked to ensure no imminent collisions.
 
 ## Wayfinder Nodes
+
 ### Subsumptive
+
 A subsumptive approach to wayfinding. This node listens to Vector Field Histogram and Lane Following topics, picking the higher priority (in this case, lane follow) waypoint. In the event that no waypoint is chosen, the robot simply moves forward.
-| Subscribed Topics  | |Published Topics  |
+| Subscribed Topics  | |Published Topics  |
 |--|--|--|
 |VFH Wpt / Status|  | Local Goal |
 |LF Wpt / Status|
 
 ### Path Collector
+
 This node collects waypoints from Vector Field Histogram and Lane Following to establish a path which is post-processed then
-| Subscribed Topics  | |Published Topics  |
+| Subscribed Topics  | |Published Topics  |
 |--|--|--|
 |VFH Wpt / Status|  | Target Path |
 |LF Wpt / Status|
 
-###  Euclidean Distance Transform
-| Subscribed Topics | |Published Topics  |
+### Euclidean Distance Transform
+
+| Subscribed Topics | |Published Topics  |
 |--|--|--|
 | Costmap |  | Path plan |
 
 ## Controllers
+
 ### Proportional-Integral-Derivative (PID)
+
+A standard [PID Controller](https://github.com/BlaineKTMO/ros-pid-controller.git) which controls steering angle.
+
 ### Dynamic Window Approach (DWA)
+
+A modified version of [Amslab's DWA planner](https://github.com/amslabtech/dwa_planner.git). Sends a list of command velocities to the robot that match the chosen trajectory.
+
 ## Installation
 ## Launch
 ## UML diagrams
 
- 
+ 
 
 You can render UML diagrams using [Mermaid](https://mermaidjs.github.io/). For example, this will produce a sequence diagram:
 
- 
+ 
 
 ```mermaid
 sequenceDiagram
-Alice ->> Bob: Hello Bob, how are you?
-Bob-->>John: How about you John?
-Bob--x Alice: I am good thanks!
-Bob-x John: I am good thanks!
-Note right of John: Bob thinks a long<br/>long time, so long<br/>that the text does<br/>not fit on a row.
+participant Sensors
+participant Waypoint Topics
+participant Agent
+participant Wayfinder
+participant Controllers
+participant Robot
+Sensors ->> Agent: Surroundings
+Waypoint Topics ->> Wayfinder: Waypoint
+Agent ->> Wayfinder: Recovery
+Agent ->> Wayfinder: Target Velocity
+Wayfinder ->> Controllers: Path/Goal
+Controllers ->> Robot: Drive Commands
+Robot -->> Sensors: State
 
- 
 
-Bob-->Alice: Checking with John...
-Alice->John: Yes... John, how are you?
 ```
 
 # Information Flow Chart
@@ -69,11 +88,14 @@ E --> A
 # Topic Diagram
 ```mermaid
 graph LR
+subgraph A
+direction TB 
 A(VFH) -- Pose Stamped --> B((Wayfinder))
 C(LF) -- Pose Stamped --> B
 D(Target Velocity) -- Twist --> B
 B -- Pose Stamped --> E(LocalGoal)
 B -- Path --> F(CollectedPath)
+end
 G((Agent)) -- Twist --> D
 G --> H(Recovery Topics)
 H --> B
