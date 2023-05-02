@@ -87,6 +87,7 @@ void Wayfinder::wayfind() {
     tfBuffer.transform<geometry_msgs::PoseStamped>(forward, "map", ros::Duration(2));
     wpt = forward;
 
+    // Prepare goal pos for move_base path service
     geometry_msgs::PoseStamped goal;
     goal.header.frame_id = "map";
     goal.pose.position.x = 10;
@@ -104,7 +105,8 @@ void Wayfinder::wayfind() {
         goal.pose.position.x = -10;
         wpt = getFromPath(goal);
     }
-    
+   
+    // Publish target velocity and wpt for dwa controller
     targetVelocityPub.publish(targetVelocity);
     wptPub.publish(wpt);
     // ROS_WARN("%.3f, %.3f", wpt.pose.position.x, wpt.pose.position.y);
@@ -141,6 +143,7 @@ geometry_msgs::PoseStamped Wayfinder::getCurrentPos()
  */
 geometry_msgs::PoseStamped Wayfinder::getFromPath(geometry_msgs::PoseStamped goal) 
 {
+    // Path service request message
     nav_msgs::GetPlan path_service;
     path_service.request.goal = goal;
     path_service.request.start = getCurrentPos();
@@ -148,13 +151,14 @@ geometry_msgs::PoseStamped Wayfinder::getFromPath(geometry_msgs::PoseStamped goa
 
     geometry_msgs::PoseStamped ret;
 
+    // Call service and parse response
     if(path_client.call(path_service))
     {
         ROS_INFO("Path service called sucessfully!");
         if (path_service.response.plan.poses.size() >= 31) {
             ROS_INFO("Sending path at index 30.");
             ret = path_service.response.plan.poses.at(30);
-       }
+        }
         else {
             ROS_INFO("Sending end of path.");
             ret = *(path_service.response.plan.poses.cend() - 1);
@@ -169,6 +173,7 @@ int main (int argc, char *argv[])
 {
     ros::init(argc, argv, "wayfinder");
     
+    // Launch wayfinder and start navigation loop
     Wayfinder wayfinder;
     while(ros::ok()) {
         ros::spinOnce();
