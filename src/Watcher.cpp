@@ -12,7 +12,7 @@ void Watcher::checkLaserCollision(const sensor_msgs::LaserScanConstPtr& msg) {
     for(int i = 80; i < 100; i++) {
         // ROS_WARN("%f", msg->ranges[i]);
         if (msg->ranges[i] < MIN_DISTANCE) {
-            stopPub.publish(trueStdMsg);
+            reversePub.publish(trueStdMsg);
             break;
         }
     }

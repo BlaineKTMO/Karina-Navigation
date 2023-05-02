@@ -38,21 +38,24 @@ void Wayfinder::reverse() {
     velPub.publish(msg);
 }
 
-/**
+/** 
  * @brief Navigation function which checks robot status and acts accordingly. 
  */
 void Wayfinder::navigate() {
     rate.sleep();
+    // If collision is detected
+    // Early return to avoid wayfind
     if(reverseStatus) {
         ROS_WARN("Reversing");
         reverse();
         reverseStatus = false;
         return;
     }
+
+    // Stop the robot
     if(stopStatus) {
-        stopStatus = false;
-        targetVelocity.linear.x = 0;
-        return;
+        // stopStatus = false;
+        targetVelocity.linear.x = 0; // Set v to zero, wayfind loop will publish
     }
 
     wayfind();
