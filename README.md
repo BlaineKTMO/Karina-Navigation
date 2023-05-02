@@ -9,28 +9,21 @@ The Karina Navigation Stack was designed for modularity and simplicity with a bo
 
 The trajectory controller is a 2 stage process which selects local waypoints to create a plan that it delivers to the robot. In the first phase, generated waypoints from VFH and Lane Follow are processed and are used to construct the plan (In this case - a single local waypoint). This plan is then sent to the next phase which features a controller that sends velocity commands to the drive motors.
 
-The velocity controller is a single stage process which obtains information about Karina's local environment from the costmap and sensor readings. These readings are checked to ensure no imminent collisions.
+The velocity controller is a single stage process which obtains information about Karina's local environment from the costmap and sensor readings. These readings are checked to ensure no imminent collisions. If a collision is detected, the robot will reverse backwards away from the collision.
 
 ## Wayfinder Nodes
 
-### Subsumptive
+### Wayfinder
 
-A subsumptive approach to wayfinding. This node listens to Vector Field Histogram and Lane Following topics, picking the higher priority (in this case, lane follow) waypoint. In the event that no waypoint is chosen, the robot simply moves forward.
+This node collects waypoints from Vector Field Histogram and Lane Follow. The node picks from the waypoints to assemble a path if possible, then sends the path to the PID Controller. If there is no admissable path generated, the Wayfinder resorts to a subsumptive approach in which the Lane Following waypoint supercedes the VFH waypoint. In the event that no waypoint is available, the robot is given a goal directly in front of it.
+
 | Subscribed Topics  | |Published Topics  |
 |--|--|--|
 |VFH Wpt / Status|  | Local Goal |
-|LF Wpt / Status|
-
-### Path Collector
-
-This node collects waypoints from Vector Field Histogram and Lane Following to establish a path which is post-processed then
-| Subscribed Topics  | |Published Topics  |
-|--|--|--|
-|VFH Wpt / Status|  | Target Path |
-|LF Wpt / Status|
+|LF Wpt / Status| | Target Path |
 
 ### Euclidean Distance Transform
-
+This wayfinder node creates a local plan from local costmap data. It reads the costmap, binarizes the image, applies a euclidean distance transform, then selects the highest valued pixels as the path. This path is then sent to the PID controller.
 | Subscribed Topics | |Published Topics  |
 |--|--|--|
 | Costmap |  | Path plan |
@@ -46,15 +39,33 @@ A standard [PID Controller](https://github.com/BlaineKTMO/ros-pid-controller.git
 A modified version of [Amslab's DWA planner](https://github.com/amslabtech/dwa_planner.git). Sends a list of command velocities to the robot that match the chosen trajectory.
 
 ## Installation
+
+Clone git repository:
+```bash
+git clone https://github.com/BlaineKTMO/Karina-Navigation
+```
+Build with your preferred tool:
+```bash
+catkin build Karina-Navigation
+```
+or:
+```bash
+cd ~/workspace_dir/ && catkin_make
+```
+
 ## Launch
+Before launching, ensure you have built the repository from source. Then run:
+```bash
+rosrun karina_navigator wayfinder
+```
+```bash
+rosrun karina_navigator watcher
+```
+These commands will start the decision making portion of the navigation stack. VFH and LF must be started for the nav stack to start. If the controllers are not active, the navigation stack still runs but the robot will not move.
+
 ## UML diagrams
 
- 
-
-You can render UML diagrams using [Mermaid](https://mermaidjs.github.io/). For example, this will produce a sequence diagram:
-
- 
-
+### Action Diagram
 ```mermaid
 sequenceDiagram
 participant Sensors
@@ -70,13 +81,12 @@ Agent ->> Wayfinder: Target Velocity
 Wayfinder ->> Controllers: Path/Goal
 Controllers ->> Robot: Drive Commands
 Robot -->> Sensors: State
-
-
 ```
 
-# Information Flow Chart
+
+### Information Flow Chart
 ```mermaid
-graph LR
+flowchart LR
 A((Sensors)) --> B(Wayfinder)
 A --> C(Velocity Controller)
 B --> D(Trajectory Controller)
@@ -85,20 +95,22 @@ C --> E
 E --> A
 ```
 
-# Topic Diagram
+### Topic Diagram
+
 ```mermaid
-graph LR
-subgraph A
-direction TB 
-A(VFH) -- Pose Stamped --> B((Wayfinder))
+flowchart LR
+Sensors --> K & L & G
+K[(VFH)] --> A
+L[(LF)] --> C
+A(VFH) -- Pose Stampd --> B((Wayfinder))
 C(LF) -- Pose Stamped --> B
-D(Target Velocity) -- Twist --> B
 B -- Pose Stamped --> E(LocalGoal)
 B -- Path --> F(CollectedPath)
-end
+F --> I((PID))
+E --> J((DWA))
+
+D(Target Velocity) -- Twist --> B
 G((Agent)) -- Twist --> D
 G --> H(Recovery Topics)
 H --> B
-F --> I((PID))
-E --> J((DWA))
 ```
