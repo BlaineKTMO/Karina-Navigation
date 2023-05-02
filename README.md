@@ -70,6 +70,7 @@ These commands will start the decision making portion of the navigation stack. V
 ## UML diagrams
 
 ### Action Diagram
+This diagram shows the normal action flow for a single loop of the navigation stack. Sensor data is fed to the VFH and Lane Follow nodes, which each publish a waypoint that the Wayfinder reads. The wayfinder reads these waypoints and either outputs a path, or the chosen local goal.
 ```mermaid
 sequenceDiagram
 participant Sensors
@@ -100,6 +101,7 @@ E --> A
 ```
 
 ### Topic Diagram
+This diagram shows the subscriber/publisher relationships betweeen the nodes and topics.
 
 ```mermaid
 flowchart LR
