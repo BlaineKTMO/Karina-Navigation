@@ -116,7 +116,7 @@ public:
         
         // Set initial status values
         reverseStatus(false),
-        vfhStatus(false),
+        vfhStatus(true),
         lfStatus(false),
         stopStatus(false),
 
