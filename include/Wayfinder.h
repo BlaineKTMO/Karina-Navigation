@@ -101,7 +101,7 @@ public:
 
         // Initialize subscribers
         reverseSub(n.subscribe("/reverse", 10, &Wayfinder::reverseCallback, this)),
-        vfhWptSub(n.subscribe("/vfh_wpt", 10, &Wayfinder::vfhWptCallback, this)),
+        vfhWptSub(n.subscribe("/vfh/waypoint", 10, &Wayfinder::vfhWptCallback, this)),
         lfWptSub(n.subscribe("/lf_wpt", 10, &Wayfinder::lfWptCallback, this)),
         vfhStatusSub(n.subscribe("/vfh_status", 10, &Wayfinder::vfhStatusCallback, this)),
         lfStatusSub(n.subscribe("/lf_status", 10, &Wayfinder::lfStatusCallback, this)),
