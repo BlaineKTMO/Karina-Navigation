@@ -3,6 +3,6 @@
 <launch>
 
     <node name="wayfinder" pkg="karina_navigation" type="wayfinder"/>
-    <node name="agent" pkg="karina_nvigation" type="watcher" />
+    <node name="agent" pkg="karina_navigation" type="watcher" />
     
 </launch>

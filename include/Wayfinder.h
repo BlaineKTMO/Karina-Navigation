@@ -26,6 +26,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Bool.h>
+#include <std_msgs/Float32.h>
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/GetPlan.h>
 #include <tf2_ros/transform_listener.h>
@@ -33,6 +34,10 @@
 #include <vector>
 
 const std::string STOP_TOPIC = "/stop";
+const std::string LANE_FOLLOW_WAYPOINT = "/laneFollow_waypoint";
+const std::string VFH_WAYPOINT = "/vfh/waypoint";
+const std::string LANE_FOLLOW_CONFIDENCE = "laneFollow_confidence";
+const std::string VFH_CONFIDENCE = "/vfh/confidence";
 
 class Wayfinder {
 protected:
@@ -82,7 +87,7 @@ private:
     // Waypoint subscribers
     void vfhWptCallback(const geometry_msgs::PoseStampedConstPtr& msg);
     void lfWptCallback(const geometry_msgs::PoseStampedConstPtr& msg);
-    void vfhStatusCallback(const std_msgs::BoolConstPtr& msg);
+    void vfhStatusCallback(const std_msgs::Float32ConstPtr& msg);
     void lfStatusCallback(const std_msgs::BoolConstPtr& msg);
 
 
@@ -101,10 +106,10 @@ public:
 
         // Initialize subscribers
         reverseSub(n.subscribe("/reverse", 10, &Wayfinder::reverseCallback, this)),
-        vfhWptSub(n.subscribe("/vfh/waypoint", 10, &Wayfinder::vfhWptCallback, this)),
-        lfWptSub(n.subscribe("/lf_wpt", 10, &Wayfinder::lfWptCallback, this)),
-        vfhStatusSub(n.subscribe("/vfh_status", 10, &Wayfinder::vfhStatusCallback, this)),
-        lfStatusSub(n.subscribe("/lf_status", 10, &Wayfinder::lfStatusCallback, this)),
+        vfhWptSub(n.subscribe(VFH_WAYPOINT, 10, &Wayfinder::vfhWptCallback, this)),
+        lfWptSub(n.subscribe(LANE_FOLLOW_WAYPOINT, 10, &Wayfinder::lfWptCallback, this)),
+        vfhStatusSub(n.subscribe(VFH_CONFIDENCE, 10, &Wayfinder::vfhStatusCallback, this)),
+        lfStatusSub(n.subscribe(LANE_FOLLOW_CONFIDENCE, 10, &Wayfinder::lfStatusCallback, this)),
         stopSub(n.subscribe(STOP_TOPIC, 10, &Wayfinder::stopSubCallback, this)),
         targetVelocitySub(n.subscribe("/target_vel", 10, &Wayfinder::targetVelocityCallback, this)),
 

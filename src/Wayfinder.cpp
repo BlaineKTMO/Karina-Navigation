@@ -6,7 +6,6 @@
 *   Subsumptive local navigator node.
 */
 
-#include <ros/ros.h>
 #include <Wayfinder.h>
 
 void Wayfinder::vfhWptCallback(const geometry_msgs::PoseStampedConstPtr& msg) {
@@ -18,7 +17,7 @@ void Wayfinder::lfWptCallback(const geometry_msgs::PoseStampedConstPtr& msg) {
     addToPath(lfWpt);
 }
 
-void Wayfinder::vfhStatusCallback(const std_msgs::BoolConstPtr& msg) {
+void Wayfinder::vfhStatusCallback(const std_msgs::Float32ConstPtr& msg) {
     vfhStatus = msg->data;
 }
 
@@ -43,7 +42,7 @@ void Wayfinder::reverseCallback(const std_msgs::BoolConstPtr& msg) {
  */
 void Wayfinder::reverse() {
     geometry_msgs::Twist msg;
-    msg.linear.x = -2;
+    // msg.linear.x = -2;
     velPub.publish(msg);
 }
 
@@ -102,22 +101,24 @@ void Wayfinder::wayfind() {
     wpt = forward;
 
     // Prepare goal pos for move_base path service
-    geometry_msgs::PoseStamped goal;
-    goal.header.frame_id = "map";
-    goal.pose.position.x = 10;
-    goal.pose.position.y = 10;
-    goal.pose.orientation.w = 1;
+    // geometry_msgs::PoseStamped goal;
+    // goal.header.frame_id = "map";
+    // goal.pose.position.x = 10;
+    // goal.pose.position.y = 10;
+    // goal.pose.orientation.w = 1;
 
     if(vfhStatus) {
         wpt = vfhWpt;
         // wpt.pose.position.y += 5;
         // wpt = getFromPath(goal);
+        ROS_WARN("VFH Recieved");
     }
     if(lfStatus) {
         wpt = lfWpt;
         // wpt.pose.position.y -= 5;
         // goal.pose.position.x = -10;
         // wpt = getFromPath(goal);
+        ROS_WARN("Lane Follow Recieved");
     }
    
     // Publish target velocity and wpt for dwa controller
