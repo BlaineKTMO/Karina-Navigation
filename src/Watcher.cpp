@@ -9,7 +9,7 @@
 #include "Watcher.h"
 
 void Watcher::checkLaserCollision(const sensor_msgs::LaserScanConstPtr& msg) {
-    for(int i = 100; i < 140; i++) {
+    for(int i = 160; i < 180; i++) {
         // ROS_WARN("%f", msg->ranges[i]);
         // If obstacle directly in front of robot
         if (msg->ranges[i] < MIN_DISTANCE) {
