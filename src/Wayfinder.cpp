@@ -42,7 +42,7 @@ void Wayfinder::reverseCallback(const std_msgs::BoolConstPtr& msg) {
  */
 void Wayfinder::reverse() {
     geometry_msgs::Twist msg;
-    // msg.linear.x = -2;
+    msg.linear.x = -2;
     velPub.publish(msg);
 }
 
